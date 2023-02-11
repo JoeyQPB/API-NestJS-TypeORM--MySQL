@@ -12,50 +12,47 @@ import {
 import { CreateUserDTO } from './dto/create-user-dto';
 import { UpdatePatchUserDTO } from './dto/update-patch-user-dto';
 import { UpdatePutUserDTO } from './dto/update-put-user-dto';
+import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
+  constructor(private readonly userService: UserService) {}
+  // como esta no msm modulo n eh necessario exportar desse modulo
+
   @Post('create')
-  async create(@Body() { name, email, password }: CreateUserDTO) {
-    return { name, email, password };
+  async create(@Body() data: CreateUserDTO) {
+    return this.userService.create(data);
+    // ñ precisa colocar await para retornos assincornos
   }
 
   @Get()
   async readAlllUsers() {
-    return { users: [] };
+    return this.userService.getAllUsers();
   }
 
   @Get(':id')
-  async readOneUser(@Param() params) {
-    return { user: {}, params };
+  async readOneUser(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.getOneUser(id);
   }
 
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdatePutUserDTO,
+    @Body() data: UpdatePutUserDTO,
   ) {
-    return {
-      method: 'Put',
-      id,
-      body,
-    };
+    return this.userService.update(id, data);
   }
 
   @Patch(':id')
   async updatePartial(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdatePatchUserDTO,
+    @Body() data: UpdatePatchUserDTO,
   ) {
-    return {
-      method: 'Patch',
-      id,
-      body,
-    };
+    return this.userService.updatePartial(id, data);
   }
 
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
-    return { resp: `deleted user: " ${id} " was completed`, type: typeof id };
+    return this.userService.delete(id);
   }
 }
