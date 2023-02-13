@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { emit } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from './dto/create-user-dto';
 import { UpdatePatchUserDTO } from './dto/update-patch-user-dto';
@@ -10,6 +9,10 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateUserDTO) {
+    if (data.birthAt) {
+      data.birthAt = new Date(data.birthAt);
+    }
+
     return await this.prisma.user.create({
       data,
     });
@@ -48,23 +51,12 @@ export class UserService {
 
   // mais rapido
   async getOneUser(id: number) {
+    await this.exists(id);
+
     return this.prisma.user.findUnique({
       where: { id },
     });
   }
-
-  // async update(id: number, data: UpdatePutUserDTO) {
-  //   console.log(data);
-  //   data.birthAt ? new Date(data.birthAt) : null;
-  //   console.log(data);
-
-  //   return this.prisma.user.update({
-  //     data,
-  //     where: {
-  //       id: id,
-  //     },
-  //   });
-  // }
 
   async update(
     id: number,
@@ -126,8 +118,14 @@ export class UserService {
   }
 
   async exists(id: number) {
-    if (!(await this.getOneUser(id))) {
-      throw new NotFoundException(`user do id${id} não existe`);
+    if (
+      !(await this.prisma.user.count({
+        where: {
+          id,
+        },
+      }))
+    ) {
+      throw new NotFoundException(`user do id: ${id} não existe`);
     }
   }
 }
