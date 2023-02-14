@@ -1,16 +1,35 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateUserDTO } from 'src/user/dto/create-user-dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
+    private readonly userService: UserService,
   ) {}
 
-  async createToken() {
-    //     return this.jwtService.sign();
+  // module (schema) vira um DTO
+  async createToken(user: User) {
+    return {
+      accessToken: this.jwtService.sign(
+        {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        {
+          expiresIn: '1 day',
+          subject: String(user.id),
+          issuer: 'API NESTJS - login',
+          audience: 'users',
+        },
+      ),
+    };
   }
 
   async checkToken(token: string) {
@@ -26,10 +45,12 @@ export class AuthService {
     });
 
     if (!user) {
+      console.log(email, password);
+
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return this.createToken(user);
   }
 
   async forgetPassword(email: string) {
@@ -49,11 +70,9 @@ export class AuthService {
   }
 
   async resetPassword(password: string, token: string) {
-    // TODO: validar token
-    // TODO: trocar senha id vem do token
+    // TO DO: validar token
     const id = 0;
-
-    await this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: {
         id,
       },
@@ -61,5 +80,11 @@ export class AuthService {
         password,
       },
     });
+    return this.createToken(user);
+  }
+
+  async register(data: CreateUserDTO) {
+    const user = await this.userService.create(data);
+    return this.createToken(user);
   }
 }

@@ -1,5 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthLoginDTO } from './dto/auth.login.dto';
 import { AuthRegistrerDTO } from './dto/auth.registrer.dto';
@@ -9,19 +8,16 @@ import { ForgetPasswordDTO } from './dto/ForgetPassword.dto';
 @Controller('auth')
 export class AuthController {
   //      injetando o serviço
-  constructor(
-    private readonly userService: UserService,
-    private readonly AuthService: AuthService,
-  ) {}
+  constructor(private readonly AuthService: AuthService) {}
 
   @Post('login')
   async login(@Body() data: AuthLoginDTO) {
-    return this.AuthService.resetPassword(data.password, data.email);
+    return this.AuthService.login(data.email, data.password);
   }
 
-  @Post('registrer')
-  async registrer(@Body() data: AuthRegistrerDTO) {
-    return this.userService.create(data);
+  @Post('register')
+  async register(@Body() data: AuthRegistrerDTO) {
+    return this.AuthService.register(data);
   }
 
   @Post('forget_password')
