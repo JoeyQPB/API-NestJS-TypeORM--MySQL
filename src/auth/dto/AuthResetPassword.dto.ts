@@ -1,6 +1,6 @@
 import { IsJWT, IsString, MinLength } from 'class-validator';
 
-export class AuthResetPassword {
+export class AuthResetPasswordDTO {
   @IsString()
   @MinLength(6)
   password: string;
