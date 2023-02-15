@@ -20,6 +20,7 @@ import { UpdatePatchUserDTO } from './dto/update-patch-user-dto';
 import { UpdatePutUserDTO } from './dto/update-put-user-dto';
 import { UserService } from './user.service';
 
+@Roles(Role.Admin)
 @UseGuards(AuthGuard, RoleGuard)
 @UseInterceptors(LogInterceptor)
 @Controller('users')
@@ -27,38 +28,32 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
   // como esta no msm modulo n eh necessario exportar desse modulo
 
-  @Roles(Role.Admin)
   @Post('create')
   async create(@Body() data: CreateUserDTO) {
     return this.userService.create(data);
     // ñ precisa colocar await para retornos assincornos
   }
 
-  @Roles(Role.Admin)
   @Get()
   async readAlllUsers() {
     return this.userService.getAllUsers();
   }
 
-  @Roles(Role.Admin)
   @Get(':id')
   async readOneUser(@ParamId() id: number) {
     return this.userService.getOneUser(id);
   }
 
-  @Roles(Role.Admin)
   @Put(':id')
   async update(@ParamId() id: number, @Body() data: UpdatePutUserDTO) {
     return this.userService.update(id, data);
   }
 
-  @Roles(Role.Admin)
   @Patch(':id')
   async updatePartial(@ParamId() id: number, @Body() data: UpdatePatchUserDTO) {
     return this.userService.updatePartial(id, data);
   }
 
-  @Roles(Role.Admin)
   @Delete(':id')
   async deleteUser(@ParamId() id: number) {
     return this.userService.delete(id);
