@@ -1,11 +1,20 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
+    // resolvendo dependencia circular pelos service/guards
+    // @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+    // @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
 
