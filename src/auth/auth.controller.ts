@@ -6,7 +6,9 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { User } from 'src/decorators/user.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { CreateUserDTO } from 'src/user/dto/create-user-dto';
 import { AuthService } from './auth.service';
 import { AuthMeDTO } from './dto/auth-me.dto';
 import { AuthLoginDTO } from './dto/auth.login.dto';
@@ -41,7 +43,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Post('me')
-  async checkToken(@Request() req) {
-    return { me: 'ok', data: req.tokenPayload };
+  async checkToken(@User() user: CreateUserDTO) {
+    return { user };
   }
 }
