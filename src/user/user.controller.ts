@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ParamId } from 'src/decorators/param-id.decorator';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/enums/role.enum';
@@ -28,6 +29,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
   // como esta no msm modulo n eh necessario exportar desse modulo
 
+  // sobrescenvendo
+  @Throttle(5, 60)
   @Post('create')
   async create(@Body() data: CreateUserDTO) {
     return this.userService.create(data);
@@ -39,6 +42,8 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
+  //ignorando o throttle
+  @SkipThrottle()
   @Get(':id')
   async readOneUser(@ParamId() id: number) {
     return this.userService.getOneUser(id);
