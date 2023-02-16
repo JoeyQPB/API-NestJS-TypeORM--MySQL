@@ -1,25 +1,31 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  Headers,
   Post,
-  Request,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from 'src/decorators/user.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { CreateUserDTO } from 'src/user/dto/create-user-dto';
 import { AuthService } from './auth.service';
-import { AuthMeDTO } from './dto/auth-me.dto';
 import { AuthLoginDTO } from './dto/auth.login.dto';
 import { AuthRegistrerDTO } from './dto/auth.registrer.dto';
 import { AuthResetPasswordDTO } from './dto/AuthResetPassword.dto';
 import { ForgetPasswordDTO } from './dto/ForgetPassword.dto';
+import { join } from 'path';
+import { FileService } from 'src/file/file.service';
 
 @Controller('auth')
 export class AuthController {
   //      injetando o serviço
-  constructor(private readonly AuthService: AuthService) {}
+  constructor(
+    private readonly AuthService: AuthService,
+    private readonly fileService: FileService,
+  ) {}
 
   @Post('login')
   async login(@Body() data: AuthLoginDTO) {
@@ -45,5 +51,30 @@ export class AuthController {
   @Post('me')
   async checkToken(@User() user: CreateUserDTO) {
     return { user };
+  }
+
+  @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(AuthGuard)
+  @Post('photo')
+  async uploadPhoto(
+    @User() user,
+    @UploadedFile('file') photo: Express.Multer.File,
+  ) {
+    const path = join(
+      __dirname,
+      '../',
+      '../',
+      'storage',
+      'photos',
+      `photo-${user.id}.png`,
+    );
+
+    try {
+      await this.fileService.uploadFile(photo, path);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err);
+    }
+    return { sucess: true };
   }
 }
