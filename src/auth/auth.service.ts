@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from 'src/user/dto/create-user-dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
+    private readonly mailer: MailerService,
   ) {}
 
   // module (schema) vira um DTO
@@ -93,23 +95,59 @@ export class AuthService {
       throw new NotFoundException('email not found');
     }
 
-    //TO DO: enviar email...
+    const token = this.jwtService.sign(
+      { id: user.id },
+      {
+        expiresIn: '10 minutes',
+        subject: String(user.id),
+        issuer: 'forget',
+        audience: this.audience,
+      },
+    );
+
+    await this.mailer.sendMail({
+      subject: 'Recuperação de senha',
+      to: user.email,
+      template: '../templates/forget.pug',
+      context: {
+        name: user.name,
+        token: token,
+      },
+    });
 
     return true;
   }
 
   async resetPassword(password: string, token: string) {
-    // TO DO: validar token
-    const id = 0;
-    const user = await this.prisma.user.update({
-      where: {
-        id,
-      },
-      data: {
-        password,
-      },
-    });
-    return this.createToken(user);
+    try {
+      const data: any = this.jwtService.verify(token, {
+        issuer: 'forget',
+        audience: this.audience,
+      });
+
+      if (isNaN(Number(data.id))) {
+        return new BadRequestException('token inválido');
+      }
+
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(String(data.password), salt);
+
+      data.password = hashedPassword;
+
+      const user = await this.prisma.user.update({
+        where: {
+          id: data.id,
+        },
+        data: {
+          password,
+        },
+      });
+
+      return this.createToken(user);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async register(data: CreateUserDTO) {
