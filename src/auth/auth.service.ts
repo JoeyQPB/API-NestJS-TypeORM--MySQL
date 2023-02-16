@@ -115,7 +115,7 @@ export class AuthService {
       },
     });
 
-    return true;
+    return { send: true };
   }
 
   async resetPassword(password: string, token: string) {
@@ -130,16 +130,14 @@ export class AuthService {
       }
 
       const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash(String(data.password), salt);
-
-      data.password = hashedPassword;
+      password = await bcrypt.hash(String(data.password), salt);
 
       const user = await this.prisma.user.update({
         where: {
-          id: data.id,
+          id: Number(data.id),
         },
         data: {
-          password,
+          password: password,
         },
       });
 
