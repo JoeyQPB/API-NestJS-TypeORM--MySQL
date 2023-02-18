@@ -1,11 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class Migrate1676715379962 implements MigrationInterface {
-  // up fzr uma nova versão
+export class Migrate1672191057117 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'user_entity',
+        name: 'users',
         columns: [
           {
             name: 'id',
@@ -18,23 +17,22 @@ export class Migrate1676715379962 implements MigrationInterface {
           {
             name: 'name',
             type: 'varchar',
-            length: '64',
+            length: '63',
           },
           {
             name: 'email',
             type: 'varchar',
-            length: '128',
+            length: '127',
             isUnique: true,
           },
           {
             name: 'password',
             type: 'varchar',
-            length: '128',
+            length: '127',
           },
           {
             name: 'birthAt',
             type: 'date',
-            length: '128',
             isNullable: true,
           },
           {
@@ -43,12 +41,12 @@ export class Migrate1676715379962 implements MigrationInterface {
             default: '1',
           },
           {
-            name: 'createAt',
+            name: 'createdAt',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP()',
           },
           {
-            name: 'updateAt',
+            name: 'updatedAt',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP()',
           },
@@ -57,8 +55,7 @@ export class Migrate1676715379962 implements MigrationInterface {
     );
   }
 
-  // down é derrubar uma versão
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('user_entity');
+    await queryRunner.dropTable('users');
   }
 }
