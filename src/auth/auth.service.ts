@@ -71,11 +71,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
-    const user = await this.usersRepository.findOne({
-      where: {
-        email,
-      },
-    });
+    const user = await this.usersRepository.findOneBy({ email });
 
     if (!user) {
       throw new NotFoundException('Email/Password incorrect');
@@ -147,6 +143,6 @@ export class AuthService {
 
   async register(data: CreateUserDTO) {
     const user = await this.userService.create(data);
-    return this.createToken(user);
+    // return this.createToken(user);
   }
 }

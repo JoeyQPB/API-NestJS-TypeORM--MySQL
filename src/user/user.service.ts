@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user-dto';
 import { UpdatePatchUserDTO } from './dto/update-patch-user-dto';
 import { UpdatePutUserDTO } from './dto/update-put-user-dto';
@@ -15,12 +19,16 @@ export class UserService {
   ) {}
 
   async create(data: CreateUserDTO) {
+    if (await this.usersRepository.exist({ where: { email: data.email } })) {
+      throw new BadRequestException('email já cadastrado');
+    }
+
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(data.password, salt);
+    data.password = await bcrypt.hash(data.password, salt);
 
-    data.password = hashedPassword;
+    const user = this.usersRepository.create(data);
 
-    return this.usersRepository.create(data);
+    this.usersRepository.save(user);
   }
 
   async getAllUsers() {
@@ -83,13 +91,15 @@ export class UserService {
       data.password = hasehdPassword;
     }
 
-    return this.usersRepository.update(id, data);
+    this.usersRepository.update(id, data);
+
+    return this.getOneUser(id);
   }
 
   async delete(id: number) {
     await this.exists(id);
 
-    return this.usersRepository.delete({ id });
+    return this.usersRepository.delete(id);
   }
 
   async exists(id: number) {

@@ -30,7 +30,7 @@ import { UserModule } from './user/user.module';
         },
       },
       defaults: {
-        from: `"nest-api-test" ${process.env.EMAIL}`,
+        from: `"nest-api-test2" ${process.env.EMAIL}`,
       },
       template: {
         dir: __dirname + '/templates',

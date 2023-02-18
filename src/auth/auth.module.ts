@@ -11,7 +11,7 @@ import { AuthService } from './auth.service';
   controllers: [AuthController],
   imports: [
     JwtModule.register({
-      secret: String(process.env.TOKEN_SECRET),
+      secret: process.env.TOKEN_SECRET,
     }),
     forwardRef(() => UserModule),
     FileModule,
