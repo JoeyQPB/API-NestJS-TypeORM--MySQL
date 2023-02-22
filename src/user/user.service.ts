@@ -67,7 +67,7 @@ export class UserService {
   ) {
     await this.exists(id);
 
-    const data: UpdatePatchUserDTO = {};
+    const data: any = {};
 
     if (birthAt) {
       data.birthAt = new Date(birthAt);

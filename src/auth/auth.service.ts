@@ -55,7 +55,6 @@ export class AuthService {
 
       return data;
     } catch (err) {
-      // console.log(err);
       throw new BadRequestException(err);
     }
   }
@@ -143,6 +142,6 @@ export class AuthService {
 
   async register(data: CreateUserDTO) {
     const user = await this.userService.create(data);
-    // return this.createToken(user);
+    return this.createToken(user);
   }
 }
