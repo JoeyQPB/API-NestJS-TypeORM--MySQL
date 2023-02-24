@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { CreateUserDTO } from 'src/user/dto/create-user-dto';
-import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from '@nestjs-modules/mailer';
-import { UserEntity } from 'src/user/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserService } from '../user/user.service';
+import { UserEntity } from '../user/entity/user.entity';
+import { CreateUserDTO } from '../user/dto/create-user-dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +20,6 @@ export class AuthService {
 
   constructor(
     private readonly jwtService: JwtService,
-
     private readonly userService: UserService,
     private readonly mailer: MailerService,
     @InjectRepository(UserEntity)
