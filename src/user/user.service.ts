@@ -52,13 +52,15 @@ export class UserService {
 
     password = hashedPassword;
 
-    return this.usersRepository.update(id, {
+    await this.usersRepository.update(id, {
       name,
       email,
       password,
       birthAt: birthAt ? new Date(birthAt) : null,
       role,
     });
+
+    return this.getOneUser(id);
   }
 
   async updatePartial(
