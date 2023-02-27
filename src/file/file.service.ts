@@ -11,6 +11,7 @@ export class FileService {
 
   async uploadFile(file: Express.Multer.File, fileName: string) {
     const path: PathLike = join(this.getDestinantionPath(), fileName);
-    return writeFile(path, file.buffer);
+    await writeFile(path, file.buffer);
+    return path;
   }
 }
