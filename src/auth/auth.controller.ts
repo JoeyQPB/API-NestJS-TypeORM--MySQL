@@ -16,16 +16,16 @@ import {
   FileInterceptor,
   FilesInterceptor,
 } from '@nestjs/platform-express';
-import { User } from decorators/user.decorator';
-import { AuthGuard } from guards/auth.guard';
-import { CreateUserDTO } from user/dto/create-user-dto';
 import { AuthService } from './auth.service';
 import { AuthLoginDTO } from './dto/auth.login.dto';
 import { AuthRegistrerDTO } from './dto/auth.registrer.dto';
 import { AuthResetPasswordDTO } from './dto/AuthResetPassword.dto';
 import { ForgetPasswordDTO } from './dto/ForgetPassword.dto';
 import { join } from 'path';
-import { FileService } from file/file.service';
+import { FileService } from '../file/file.service';
+import { AuthGuard } from '../guards/auth.guard';
+import { User } from '../decorators/user.decorator';
+import { CreateUserDTO } from '../user/dto/create-user-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -76,17 +76,10 @@ export class AuthController {
     )
     photo: Express.Multer.File,
   ) {
-    const path = join(
-      __dirname,
-      '../',
-      '../',
-      'storage',
-      'photos',
-      `photo-${user.id}.png`,
-    );
+    const filename = `photo-${user.id}.png`;
 
     try {
-      await this.fileService.uploadFile(photo, path);
+      await this.fileService.uploadFile(photo, filename);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(err);

@@ -140,6 +140,7 @@ export class AuthService {
   }
 
   async register(data: CreateUserDTO) {
+    delete data.role;
     const user = await this.userService.create(data);
     return this.createToken(user);
   }
