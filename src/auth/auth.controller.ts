@@ -21,11 +21,11 @@ import { AuthLoginDTO } from './dto/auth.login.dto';
 import { AuthRegistrerDTO } from './dto/auth.registrer.dto';
 import { AuthResetPasswordDTO } from './dto/AuthResetPassword.dto';
 import { ForgetPasswordDTO } from './dto/ForgetPassword.dto';
-import { join } from 'path';
 import { FileService } from '../file/file.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../decorators/user.decorator';
 import { CreateUserDTO } from '../user/dto/create-user-dto';
+import { UserEntity } from '../user/entity/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -57,15 +57,15 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Post('me')
-  async checkToken(@User() user: CreateUserDTO) {
-    return { user };
+  async checkToken(@User() user: UserEntity) {
+    return user;
   }
 
   @UseInterceptors(FileInterceptor('file'))
   @UseGuards(AuthGuard)
   @Post('photo')
   async uploadPhoto(
-    @User() user,
+    @User() user: UserEntity,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -84,7 +84,7 @@ export class AuthController {
       console.log(err);
       throw new BadRequestException(err);
     }
-    return { sucess: true };
+    return photo;
   }
 
   // multiplos arquivos
